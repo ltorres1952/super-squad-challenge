@@ -1,0 +1,38 @@
+[
+  {
+    "name": "Superman",
+    "powers": "Flight, Super Strength, Super Speed, Super Hearing, Telescopic Vision, X-Ray Vision, Near Invincibility, Frost Breath, Heat Vision,",
+    "universe": "DC"
+  },
+  {
+    "name": "Spider-Man",
+    "universe": "Marvel",
+    "powers": "Super Strength, Increased Healing, Danger Sense, Wall Climbing"
+  },
+  {
+    "name": "Batman",
+    "universe": "DC",
+    "powers": "Money"
+  },
+  {
+    "name": "Iron Man",
+    "universe": "Marvel",
+    "powers": [
+      "Also Money"
+    ]
+  },
+  {
+    "name": "Green Lantern",
+    "universe": "DC",
+    "powers": [
+      "Ring thingy"
+    ]
+  },
+  {
+    "name": "Sad Man",
+    "universe": "Custom",
+    "powers": [
+      "Sad"
+    ]
+  }
+]

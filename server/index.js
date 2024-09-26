@@ -1,75 +1,65 @@
-// index.js
-// Required modules
 const express = require('express');
 const path = require('path');
 const fs = require('fs').promises;
 
-// Initialize Express application
 const app = express();
-
-// Define paths
 const clientPath = path.join(__dirname, '..', 'client/src');
-const dataPath = path.join(__dirname, 'data', 'users.json');
+const dataPath = path.join(__dirname, 'data', 'superheroes.json');
 const serverPublic = path.join(__dirname, 'public');
-// Middleware setup
-app.use(express.static(clientPath)); // Serve static files from client directory
-app.use(express.urlencoded({ extended: true })); // Parse URL-encoded bodies
-app.use(express.json()); // Parse JSON bodies
 
-// Routes
+app.use(express.static(clientPath));
+app.use(express.urlencoded({ extended: true })); 
+app.use(express.json());
 
-// Home route
+
 app.get('/', (req, res) => {
     res.sendFile('index.html', { root: clientPath });
 });
 
-app.get('/users', async (req, res) => {
+app.get('/superheroes', async (req, res) => {
     try {
         const data = await fs.readFile(dataPath, 'utf8');
 
-        const users = JSON.parse(data);
-        if (!users) {
-            throw new Error("Error no users available");
+        const superheroes = JSON.parse(data);
+        if (!superheroes) {
+            throw new Error("Error no superheroes available");
         }
-        res.status(200).json(users);
+        res.status(200).json(superheroes);
     } catch (error) {
-        console.error("Problem getting users" + error.message);
-        res.status(500).json({ error: "Problem reading users" });
+        console.error("Problem getting superheroes" + error.power);
+        res.status(500).json({ error: "Problem reading superheroes" });
     }
 });
 
-// Form route
 app.get('/form', (req, res) => {
     res.sendFile('pages/form.html', { root: serverPublic });
 });
+app.get('/index', (req, res) => {
+    res.sendFile('pages/form.html', { root: serverPublic });
+})
 
-// Form submission route
 app.post('/submit-form', async (req, res) => {
     try {
-        const { name, email, message } = req.body;
+        const { name, universe, power } = req.body;
 
-        // Read existing users from file
-        let users = [];
+        let superheroes = [];
         try {
             const data = await fs.readFile(dataPath, 'utf8');
-            users = JSON.parse(data);
+            superheroes = JSON.parse(data);
         } catch (error) {
-            // If file doesn't exist or is empty, start with an empty array
-            console.error('Error reading user data:', error);
-            users = [];
+            console.error('Error reading superhero data:', error);
+            superheroes = [];
         }
 
-        // Find or create user
-        let user = users.find(u => u.name === name && u.email === email);
-        if (user) {
-            user.messages.push(message);
+        let superhero = superheroes.find(u => u.name === name && u.universe === universe);
+        if (superhero) {
+            superhero.powers.push(power);
         } else {
-            user = { name, email, messages: [message] };
-            users.push(user);
+            superhero = { name, universe, powers: [power] };
+            superheroes.push(superhero);
         }
 
-        // Save updated users
-        await fs.writeFile(dataPath, JSON.stringify(users, null, 2));
+        await fs.writeFile(dataPath, JSON.stringify(superheroes, null, 2));
         res.redirect('/form');
     } catch (error) {
         console.error('Error processing form:', error);
@@ -77,34 +67,62 @@ app.post('/submit-form', async (req, res) => {
     }
 });
 
-// Update user route (currently just logs and sends a response)
-app.put('/update-user/:currentName/:currentEmail', async (req, res) => {
+app.put('/update-superhero/:currentName/:currentUniverse/', async (req, res) => {
     try {
-        const { currentName, currentEmail } = req.params;
-        const { newName, newEmail } = req.body;
-        console.log('Current user:', { currentName, currentEmail });
-        console.log('New user data:', { newName, newEmail });
+        const { currentName, currentUniverse } = req.params;
+        const { newName, newUniverse, newPowers } = req.body;
+        console.log('Current superhero:', { currentName, currentUniverse });
+        console.log('New superhero data:', { newName, newUniverse, newPowers});
         const data = await fs.readFile(dataPath, 'utf8');
         if (data) {
-            let users = JSON.parse(data);
-            const userIndex = users.findIndex(user => user.name === currentName && user.email === currentEmail);
-            console.log(userIndex);
-            if (userIndex === -1) {
-                return res.status(404).json({ message: "User not found" })
+            let superheroes = JSON.parse(data);
+            const superheroIndex = superheroes.findIndex(superhero => superhero.name === currentName && superhero.universe === currentUniverse);
+            console.log(superheroIndex);
+            if (superheroIndex === -1) {
+                return res.status(404).json({ power: "superhero not found" })
             }
-            users[userIndex] = { ...users[userIndex], name: newName, email: newEmail };
-            console.log(users);
-            await fs.writeFile(dataPath, JSON.stringify(users, null, 2));
+            superheroes[superheroIndex] = { ...superheroes[superheroIndex], name: newName, universe: newUniverse, powers: newPowers};
+            console.log(superheroes);
+            await fs.writeFile(dataPath, JSON.stringify(superheroes, null, 2));
 
-            res.status(200).json({ message: `You sent ${newName} and ${newEmail}` });
+            res.status(200).json({ power: `You sent ${newName} and ${newUniverse} and ${newPowers}` });
         }
     } catch (error) {
-        console.error('Error updating user:', error);
-        res.status(500).send('An error occurred while updating the user.');
+        console.error('Error updating superhero:', error);
+        res.status(500).send('An error occurred while updating the superhero.');
     }
 });
 
-// Start the server
+app.delete('/superhero/:name/:universe/', async (req, res) => { 
+    try {
+        console.log(req.params);
+        const { name, universe } = req.params;
+        let superheroes = [];
+
+        try {
+            const data = await fs.readFile(dataPath, 'utf8');
+            superheroes = JSON.parse(data);
+        } catch (error) {
+            return res.status(404).send('File data not found');
+        }
+        const superheroIndex = users.findIndex(superhero => superhero.name === name && superhero.universe === universe);
+        if (superheroIndex === -1) {
+            return res.status(404).json({ message: "Hero not found" });
+        }
+        superheroes.splice(superheroIndex, 1);
+        console.log(superheroIndex);
+        console.log(superheroes);
+        try {
+            await fs.writeFile(dataPath, JSON.stringify(superheroes, null, 2));
+        } catch (error) {
+            res.status(500).send("There was a problem");
+        }
+        return res.send('successfully deleted superhero');
+    } catch (error) { 
+        console.error('There was an error');
+    }
+})
+
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
     console.log(`Server is running on http://localhost:${PORT}`);
