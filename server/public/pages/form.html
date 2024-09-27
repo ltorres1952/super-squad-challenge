@@ -93,7 +93,7 @@
           const name = document.getElementById("delete-name").value;
           const universe = document.getElementById("delete-universe").value;
           try {
-            const response = await fetch(`/user/${name}/${universe}`, {
+            const response = await fetch(`/superhero/${name}/${universe}`, {
               method: "DELETE",
             });
             if (!response.ok){

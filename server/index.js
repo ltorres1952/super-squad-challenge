@@ -93,7 +93,7 @@ app.put('/update-superhero/:currentName/:currentUniverse/', async (req, res) => 
     }
 });
 
-app.delete('/superhero/:name/:universe/', async (req, res) => { 
+app.delete('/superhero/:name/:universe', async (req, res) => { 
     try {
         console.log(req.params);
         const { name, universe } = req.params;
@@ -105,7 +105,7 @@ app.delete('/superhero/:name/:universe/', async (req, res) => {
         } catch (error) {
             return res.status(404).send('File data not found');
         }
-        const superheroIndex = users.findIndex(superhero => superhero.name === name && superhero.universe === universe);
+        const superheroIndex = superheroes.findIndex(superhero => superhero.name === name && superhero.universe === universe);
         if (superheroIndex === -1) {
             return res.status(404).json({ message: "Hero not found" });
         }
@@ -119,7 +119,7 @@ app.delete('/superhero/:name/:universe/', async (req, res) => {
         }
         return res.send('successfully deleted superhero');
     } catch (error) { 
-        console.error('There was an error');
+        console.error('There was an error', + error.message);
     }
 })
 
